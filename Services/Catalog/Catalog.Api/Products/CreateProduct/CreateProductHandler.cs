@@ -2,9 +2,6 @@ using System.Threading;
 using System.Threading.Tasks;
 namespace Catalog.Api.Products.CreateProduct;
 
-using BuildingBlocks.CQRS;
-using Catalog.Api.Models;
-
 // Command
 public record CreateProductCommand(string Name, string Description, decimal Price, List<string> Category, string ImageFile)
 : ICommand<CreateProductResult>;
@@ -12,7 +9,7 @@ public record CreateProductResult(Guid Id);
 
 
 // Handler
-internal class CreateProductHandler : ICommandHandler<CreateProductCommand, CreateProductResult>
+internal class CreateProductHandler(IDocumentSession session) : ICommandHandler<CreateProductCommand, CreateProductResult>
 {
 
 
@@ -27,6 +24,8 @@ internal class CreateProductHandler : ICommandHandler<CreateProductCommand, Crea
             ImageFile = command.ImageFile,
             Category = command.Category
         };
+        session.Store(product);
+        await session.SaveChangesAsync(cancellationToken);
 
         return new CreateProductResult(product.Id);
     }

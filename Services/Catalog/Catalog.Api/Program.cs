@@ -7,6 +7,11 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddCarter(null);
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+builder.Services.AddMarten(options =>
+{
+    options.Connection(builder.Configuration.GetConnectionString("Database")!);
+
+}).UseLightweightSessions();
 
 var app = builder.Build();
 
